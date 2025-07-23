@@ -275,7 +275,7 @@ def main():
 
     img_save_dir = os.path.join(save_path, sample, slice_type)
     os.makedirs(img_save_dir, exist_ok=True)
-    val_path = "logs/mcm/version_3/checkpoints/epoch009.ckpt"
+    val_path = "logs/mcm/version_0/checkpoints/epoch007.ckpt"
     trainer.validate(model,ckpt_path=val_path)
     display_and_save_all_deformation_fields(img_save_dir)
     print("slice type:", slice_type)
