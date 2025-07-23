@@ -41,7 +41,7 @@ class CardiacMotionModel(pl.LightningModule):
 
         self.gt1s, self.gt2s, self.preds, self.fields = [], [], [], []
 
-        self.model = MCM()
+        self.model = MCM(clip_len=self.clip_len)
         self.criterion = RegistrationLoss(lambda_smooth=0.05)
 
         self.save_hyperparameters()
@@ -275,7 +275,7 @@ def main():
 
     img_save_dir = os.path.join(save_path, sample, slice_type)
     os.makedirs(img_save_dir, exist_ok=True)
-    val_path = "logs/mcm/version_0/checkpoints/epoch007.ckpt"
+    val_path = "logs/mcm/version_0/checkpoints/epoch001.ckpt"
     trainer.validate(model,ckpt_path=val_path)
     display_and_save_all_deformation_fields(img_save_dir)
     print("slice type:", slice_type)

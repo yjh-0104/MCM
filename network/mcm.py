@@ -74,17 +74,18 @@ class MambaMlp(nn.Module):
 
 class MambaBlock(nn.Module):
     """Single Mamba block with normalization, Mamba, and MLP."""
-    def __init__(self, dim, d_state=16, d_conv=4, expand=2, mlp_ratio=4, drop=0., drop_path=0.1, act_layer=nn.GELU):
+    def __init__(self, dim, nframes=None, d_state=16, d_conv=4, expand=2, mlp_ratio=4, drop=0., drop_path=0.1, act_layer=nn.GELU):
         super().__init__()
         self.dim = dim
+        self.nframes = nframes
         self.norm1 = nn.LayerNorm(dim)
         self.mamba = Mamba(
                 d_model=dim,
                 d_state=d_state,
                 d_conv=d_conv,
                 expand=expand,
-                bimamba_type="v5",
-                nframes=5,
+                bimamba_type="v5", # bi-directional scanning Mamba
+                nframes=nframes,
         )
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = nn.LayerNorm(dim)
@@ -154,7 +155,7 @@ class PatchEmbeddings(nn.Module):
 
 class MambaEncoder(nn.Module):
     """Stacked Mamba blocks for multi-stage feature extraction."""
-    def __init__(self, in_chans=1, depths=None, dims=None,
+    def __init__(self, in_chans=1, clip_len=None, depths=None, dims=None,
                  drop_path_rate=0.1, layer_scale_init_value=1e-6, out_indices=[0, 1, 2, 3]):
         super().__init__()
         patch_sizes = [7, 3, 3, 3] 
@@ -174,7 +175,7 @@ class MambaEncoder(nn.Module):
         for i in range(len(dims)):
             stage = nn.Sequential(
                 *[nn.Sequential(
-                MambaBlock(dim=dims[i], drop_path=dp_rates[i])
+                MambaBlock(dim=dims[i], nframes=clip_len, drop_path=dp_rates[i])
                     ) for j in range(depths[i])]
             )
             self.stages.append(stage)
@@ -338,6 +339,7 @@ class MCM(nn.Module):
     """Main MCM network for motion estimation."""
     def __init__(
         self,
+        clip_len,
         in_chans=2,
         out_chans=2,
         depths=[2, 2, 2, 2],
@@ -361,11 +363,11 @@ class MCM(nn.Module):
         self.layer_scale_init_value = layer_scale_init_value
         self.spatial_dims = spatial_dims
         # Encoder
-        self.encoder = MambaEncoder(in_chans, depths=depths, dims=feat_size, drop_path_rate=0.1)
+        self.encoder = MambaEncoder(in_chans, clip_len=clip_len, depths=depths, dims=feat_size, drop_path_rate=0.1)
         # Decoder
         self.decoder = DecoderWithDFH(encoder_channels=feat_size,
                                         decoder_channels=[256, 128, 64],
-                                        nf=5,
+                                        nf=clip_len,
                                         final_channels=out_chans)
         # Spatial transformer for registration
         self.spatial_trans = SpatialTransformer(inshape)

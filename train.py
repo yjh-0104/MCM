@@ -41,7 +41,7 @@ class CardiacMotionModel(pl.LightningModule):
 
         self.train_losses, self.train_losses_smo, self.train_losses_sim_img = [], [], []
 
-        self.model = MCM()
+        self.model = MCM(clip_len=self.clip_len)
         self.criterion = RegistrationLoss(lambda_smooth=0.05)
 
         self.save_hyperparameters()
