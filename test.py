@@ -9,7 +9,7 @@ import pystrum.pynd.ndutils as nd
 from network.mcm import MCM
 from data import get_trainloader, get_testloader
 from loss import RegistrationLoss
-from deformation_field_process import display_and_save_all_deformation_fields
+from utils.deformation_field_process import display_and_save_all_deformation_fields
 from torchvision.utils import save_image
 import nibabel as nib
 import os
