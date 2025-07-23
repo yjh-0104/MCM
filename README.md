@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ```
 
 ## Training
-To train your own dataset, please modify 'data_root' first. To train the example data, please directly run: 
+To train your own dataset, please modify 'data_root' first. To train the example dataset, please directly run: 
 ```bash
 python train.py 
 ```
