@@ -1,6 +1,6 @@
 # MCM: Mamba-based Cardiac Motion Tracking using Sequential Images in MRI
 Code for Paper 'MCM: Mamba-based Cardiac Motion Tracking using Sequential Images in MRI'
-[[arXiv](https://arxiv.org)]
+[[arXiv](https://arxiv.org/abs/2507.17678)]
 
 ## Overview 
 
